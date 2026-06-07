@@ -13,6 +13,8 @@ Un quiz technique chronométré, dans le style des plateformes de recrutement (T
   - **JavaScript** → exécuté en local, instantané.
   - **C# et Java** → réellement **compilés et exécutés** via l'API publique [Wandbox](https://wandbox.org) (nécessite une connexion).
 - **Rapport final détaillé** : score par catégorie et sous-compétence (barres vert/rouge), temps passé, explications de chaque réponse, export PDF.
+- **Deux modes** (onglets en haut) : **Examen** (le simulateur) et **Cours** (`cours.html`) — une documentation complète : 14 cours, 81 chapitres, exemples de code exécutables (IDE intégré) et un quiz à la fin de chaque chapitre.
+- **Dark mode** clean (clair/sombre, mémorisé), sur les deux pages.
 
 ## Stack
 

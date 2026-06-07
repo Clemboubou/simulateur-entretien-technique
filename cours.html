@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cours — Simulateur d'entretien technique</title>
+<!-- Anti-flash : applique le thème avant le rendu -->
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="cours.css">
+</head>
+<body>
+
+<header class="topnav">
+  <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+  <div class="brand"><span class="logo">e</span><span>Révision technique</span></div>
+  <nav class="tabs">
+    <a class="tab" href="index.html">📝 Examen</a>
+    <a class="tab active" href="cours.html">📚 Cours</a>
+  </nav>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème" title="Clair / Sombre">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+  </button>
+</header>
+
+<div class="docs">
+  <aside class="sidebar" id="sidebar">
+    <input type="text" class="search" id="search" placeholder="Rechercher un chapitre...">
+    <nav id="tree"></nav>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+  <main class="content">
+    <div class="content-inner" id="content"><!-- rendu ici --></div>
+  </main>
+</div>
+
+<!-- Rendu Markdown -->
+<script src="marked.min.js"></script>
+<!-- IDE (Monaco) + moteur SQL (sql.js) pour les playgrounds -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="sql-wasm.js"></script>
+<script src="sql-wasm-binary.js"></script>
+<!-- Les 14 cours -->
+<script src="courses/course-fundamentals.js"></script>
+<script src="courses/course-csharp.js"></script>
+<script src="courses/course-aspnet.js"></script>
+<script src="courses/course-ef.js"></script>
+<script src="courses/course-java.js"></script>
+<script src="courses/course-spring.js"></script>
+<script src="courses/course-angular.js"></script>
+<script src="courses/course-js.js"></script>
+<script src="courses/course-css.js"></script>
+<script src="courses/course-sql.js"></script>
+<script src="courses/course-git.js"></script>
+<script src="courses/course-docker.js"></script>
+<script src="courses/course-agile.js"></script>
+<script src="courses/course-testing.js"></script>
+<!-- Logique de la page cours -->
+<script src="cours.js"></script>
+</body>
+</html>

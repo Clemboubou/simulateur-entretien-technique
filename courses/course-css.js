@@ -1,0 +1,255 @@
+window.COURSES = window.COURSES || {};
+window.COURSES["css"] = {
+  "id": "css",
+  "title": "CSS",
+  "icon": "CSS",
+  "summary": "Cours complet de CSS pour débutant à junior : sélecteurs et cascade, box model, positionnement, Flexbox, Grid, responsive (media queries, unités), variables et transitions. Chaque chapitre combine une métaphore, des définitions claires, des exemples de code et un QCM.",
+  "chapters": [
+    {
+      "id": "bases-selecteurs-cascade",
+      "title": "1. Les bases : sélecteurs, propriétés, cascade, héritage, spécificité",
+      "markdown": "## Métaphore\n\nImagine que ta page HTML est une **maison vide** : les murs, les portes, les fenêtres existent, mais tout est gris et sans décoration. **CSS (Cascading Style Sheets)**, c'est le **décorateur d'intérieur** : il choisit les couleurs, les tailles, l'agencement. Le HTML dit *« ce qui est là »*, le CSS dit *« à quoi ça ressemble »*.\n\n## Définitions\n\nUne **règle CSS** est composée de trois parties :\n\n```css\n/* sélecteur { propriété: valeur; } */\np {\n  color: blue;      /* propriété: color, valeur: blue */\n  font-size: 16px;  /* propriété: font-size, valeur: 16px */\n}\n```\n\n- **Sélecteur** : *quels* éléments on vise (`p`, `.classe`, `#id`).\n- **Propriété** : *quel* aspect on change (`color`, `font-size`).\n- **Valeur** : *quelle* nouvelle valeur on donne (`blue`, `16px`).\n- Un couple `propriété: valeur;` s'appelle une **déclaration**.\n\n## Les 3 façons d'attacher du CSS\n\n```html\n<!-- 1. CSS externe (recommandé) -->\n<link rel=\"stylesheet\" href=\"style.css\">\n\n<!-- 2. CSS interne (dans une balise <style>) -->\n<style>\n  p { color: green; }\n</style>\n\n<!-- 3. CSS en ligne (à éviter, sauf cas précis) -->\n<p style=\"color: red;\">Texte rouge</p>\n```\n\n## Les sélecteurs essentiels\n\n```css\n/* Par balise (élément) */\nh1 { color: navy; }\n\n/* Par classe (réutilisable, commence par .) */\n.bouton { background: orange; }\n\n/* Par id (unique dans la page, commence par #) */\n#menu { width: 200px; }\n\n/* Universel (tous les éléments) */\n* { margin: 0; }\n\n/* Descendant (un <a> à l'intérieur d'un .menu) */\n.menu a { text-decoration: none; }\n\n/* Groupé (plusieurs sélecteurs d'un coup) */\nh1, h2, h3 { font-family: Arial; }\n\n/* Pseudo-classe (état particulier) */\na:hover { color: red; }  /* au survol de la souris */\n```\n\n```html\n<nav class=\"menu\">\n  <a href=\"#\">Accueil</a>\n</nav>\n<button class=\"bouton\">Cliquez</button>\n```\n\n## La cascade\n\nLe « C » de CSS signifie **Cascading** : plusieurs règles peuvent viser le même élément. Pour décider laquelle gagne, le navigateur applique 3 critères, dans cet ordre :\n\n1. **L'importance** : une déclaration marquée `!important` l'emporte (à utiliser le moins possible).\n2. **La spécificité** : le sélecteur le plus précis gagne (voir plus bas).\n3. **L'ordre d'apparition** : à spécificité égale, **la dernière règle écrite gagne**.\n\n```css\np { color: blue; }\np { color: green; }  /* gagne : écrite en dernier, même spécificité */\n```\n\n## La spécificité\n\nC'est un **score** qui mesure la précision d'un sélecteur. Plus il est précis, plus il pèse lourd. On compte (de gauche à droite, du plus fort au plus faible) :\n\n- **id** (`#menu`) : poids fort\n- **classe / attribut / pseudo-classe** (`.actif`, `:hover`) : poids moyen\n- **balise / pseudo-élément** (`p`, `::before`) : poids faible\n\n```css\np            { color: black; }  /* spécificité : 0-0-1 */\n.texte       { color: blue;  }  /* spécificité : 0-1-0 (gagne sur p) */\n#contenu p   { color: green; }  /* spécificité : 1-0-1 (gagne sur tout) */\n```\n\nIci, un `<p class=\"texte\">` à l'intérieur de `#contenu` sera **vert** : `#contenu p` a un id, donc le plus haut score.\n\n## L'héritage\n\nCertaines propriétés se **transmettent automatiquement** des parents aux enfants. C'est surtout vrai pour le texte (`color`, `font-family`, `font-size`, `line-height`).\n\n```css\nbody {\n  color: #333;\n  font-family: Arial;\n}\n/* Tous les <p>, <span>, <li>... héritent de cette couleur et police */\n```\n\nLes propriétés de **mise en boîte** (`margin`, `padding`, `border`, `width`...) ne s'héritent **pas**. La valeur spéciale `inherit` force l'héritage quand on en a besoin.\n\n## Méthode Feynman (explique-le simplement)\n\n> *« CSS habille le HTML. Une règle = un sélecteur (qui ?) + des déclarations (quoi ?). Quand deux règles se disputent un élément, c'est la plus spécifique qui gagne, et à égalité, la dernière écrite. Le texte hérite du parent ; les boîtes, non. »*\n\nSi tu peux dire ça sans regarder, le chapitre est acquis.",
+      "playground": null,
+      "quiz": [
+        {
+          "question": "Dans la règle `a:hover { color: red; }`, que représente `color` ?",
+          "options": [
+            "Le sélecteur",
+            "La propriété",
+            "La valeur",
+            "La déclaration complète"
+          ],
+          "correctIndex": 1,
+          "explanation": "`color` est la propriété (l'aspect modifié). `red` est la valeur, `a:hover` le sélecteur, et `color: red;` la déclaration complète."
+        },
+        {
+          "question": "Deux règles visent le même `<p>` : `p { color: blue; }` puis plus bas `.texte { color: green; }`. Le `<p class=\"texte\">` sera de quelle couleur ?",
+          "options": [
+            "Bleu, car `p` est écrit en premier",
+            "Vert, car une classe a une spécificité plus forte qu'une balise",
+            "Noir, couleur par défaut",
+            "Indéfini, conflit non résolu"
+          ],
+          "correctIndex": 1,
+          "explanation": "La spécificité prime sur l'ordre. Une classe (0-1-0) bat une simple balise (0-0-1), donc le texte est vert."
+        },
+        {
+          "question": "Quelle propriété s'hérite automatiquement du parent vers l'enfant ?",
+          "options": [
+            "width",
+            "margin",
+            "color",
+            "border"
+          ],
+          "correctIndex": 2,
+          "explanation": "Les propriétés de texte comme `color`, `font-family` ou `font-size` s'héritent. Les propriétés de boîte (`width`, `margin`, `border`) ne s'héritent pas."
+        }
+      ]
+    },
+    {
+      "id": "box-model",
+      "title": "2. Le box model : margin, border, padding, box-sizing",
+      "markdown": "## Métaphore\n\nChaque élément HTML est une **boîte**, comme un **cadre photo accroché au mur** :\n\n- la **photo** = le contenu (texte, image) ;\n- le **passe-partout** (la marge blanche autour de la photo, à l'intérieur du cadre) = le **padding** ;\n- le **cadre en bois** = le **border** ;\n- l'**espace entre ce cadre et les cadres voisins** = la **margin**.\n\n## Les 4 couches de la boîte (de l'intérieur vers l'extérieur)\n\n1. **content** : le contenu lui-même (`width` / `height`).\n2. **padding** : l'espace **intérieur**, entre le contenu et la bordure.\n3. **border** : la **bordure** visible.\n4. **margin** : l'espace **extérieur**, qui pousse les voisins.\n\n```css\n.carte {\n  width: 200px;\n  padding: 20px;          /* espace intérieur */\n  border: 2px solid #333; /* bordure */\n  margin: 16px;           /* espace extérieur */\n}\n```\n\n## Écrire padding / margin rapidement\n\n```css\n/* Les 4 côtés à la même valeur */\npadding: 10px;\n\n/* vertical | horizontal */\npadding: 10px 20px;        /* haut/bas 10, gauche/droite 20 */\n\n/* haut | droite | bas | gauche (sens horaire) */\npadding: 5px 10px 15px 20px;\n\n/* Un seul côté */\nmargin-top: 32px;\n```\n\n## Le piège du calcul de largeur\n\nPar défaut (`box-sizing: content-box`), `width` ne concerne **que le contenu**. Le padding et la border s'**ajoutent** par-dessus :\n\n```css\n.boite {\n  box-sizing: content-box; /* valeur par défaut */\n  width: 200px;\n  padding: 20px;\n  border: 5px solid black;\n}\n/* Largeur réelle affichée = 200 + 20 + 20 + 5 + 5 = 250px ! */\n```\n\nC'est une source classique de bugs : on demande 200px et la boîte en fait 250.\n\n## La solution : box-sizing: border-box\n\nAvec `border-box`, le `width` **inclut** le padding et la border. La boîte fait **exactement** la taille demandée.\n\n```css\n.boite {\n  box-sizing: border-box;\n  width: 200px;\n  padding: 20px;\n  border: 5px solid black;\n}\n/* Largeur réelle = 200px. Le contenu se réduit pour compenser. */\n```\n\n**Bonne pratique quasi universelle** : appliquer `border-box` à tout le document.\n\n```css\n* {\n  box-sizing: border-box;\n}\n```\n\n## Le fusionnement des marges (margin collapsing)\n\nDeux marges verticales qui se touchent **fusionnent** : on garde la **plus grande**, pas la somme.\n\n```css\n.haut { margin-bottom: 30px; }\n.bas  { margin-top: 20px; }\n/* Espace entre les deux = 30px (le plus grand), pas 50px. */\n```\n\nCela ne concerne que les marges **verticales** (haut/bas), jamais le padding ni les marges horizontales.\n\n## Centrer horizontalement une boîte\n\n```css\n.centre {\n  width: 300px;\n  margin: 0 auto;  /* auto à gauche et à droite = centré */\n}\n```\n\n## Méthode Feynman\n\n> *« Tout élément est une boîte à 4 couches : contenu, padding (intérieur), border, margin (extérieur). En `content-box`, padding et border s'ajoutent à la largeur ; en `border-box`, ils sont inclus. On met `border-box` partout pour éviter les surprises. »*",
+      "playground": null,
+      "quiz": [
+        {
+          "question": "Quel est l'ordre des couches du box model, du centre vers l'extérieur ?",
+          "options": [
+            "content → margin → border → padding",
+            "content → padding → border → margin",
+            "margin → border → padding → content",
+            "content → border → padding → margin"
+          ],
+          "correctIndex": 1,
+          "explanation": "De l'intérieur vers l'extérieur : le contenu, puis le padding (espace intérieur), puis la border, puis la margin (espace extérieur)."
+        },
+        {
+          "question": "Avec `box-sizing: content-box`, `width: 200px; padding: 20px; border: 5px solid;`, quelle est la largeur réelle de la boîte à l'écran ?",
+          "options": [
+            "200px",
+            "225px",
+            "250px",
+            "240px"
+          ],
+          "correctIndex": 2,
+          "explanation": "En content-box, padding et border s'ajoutent : 200 + 20 + 20 + 5 + 5 = 250px. En border-box, ce serait 200px."
+        },
+        {
+          "question": "Pourquoi écrit-on souvent `* { box-sizing: border-box; }` au début d'une feuille de style ?",
+          "options": [
+            "Pour supprimer toutes les marges par défaut",
+            "Pour que `width` inclue padding et border, rendant les tailles prévisibles",
+            "Pour activer le responsive automatiquement",
+            "Pour centrer tous les éléments"
+          ],
+          "correctIndex": 1,
+          "explanation": "`border-box` fait que la largeur demandée est la largeur réelle (padding et border inclus), ce qui évite les calculs et les débordements surprises."
+        }
+      ]
+    },
+    {
+      "id": "positionnement",
+      "title": "3. Le positionnement : static, relative, absolute, fixed, sticky, z-index",
+      "markdown": "## Métaphore\n\nLa propriété `position` décide **comment un élément se place** sur la page, comme des **post-it** :\n\n- `static` : le post-it suit la file normale, l'un après l'autre ;\n- `relative` : on le décale légèrement par rapport à sa place initiale, mais sa place reste réservée ;\n- `absolute` : on le décolle complètement et on le colle où on veut sur le tableau ;\n- `fixed` : on le punaise sur la vitre, il ne bouge plus même si on fait défiler ;\n- `sticky` : il suit le défilement puis se **fige** à un seuil, comme un onglet qui reste en haut.\n\n## position: static (le défaut)\n\nC'est le comportement normal : les éléments s'empilent dans l'ordre du HTML. Les propriétés `top`, `left`, `right`, `bottom` n'ont **aucun effet**.\n\n```css\n.normal { position: static; }\n```\n\n## position: relative\n\nL'élément reste à sa place dans le flux, mais on peut le **décaler** avec `top`/`left`/etc. Sa place d'origine reste **réservée** (les voisins ne bougent pas).\n\n```css\n.decale {\n  position: relative;\n  top: 10px;   /* descend de 10px */\n  left: 20px;  /* se décale de 20px vers la droite */\n}\n```\n\nUsage clé : `relative` sert souvent de **point de repère** pour un enfant en `absolute`.\n\n## position: absolute\n\nL'élément est **retiré du flux** (sa place n'est plus réservée) et se positionne par rapport à son **ancêtre positionné le plus proche** (un parent en `relative`/`absolute`/`fixed`). S'il n'y en a pas, il se cale sur la page entière.\n\n```css\n.parent { position: relative; }\n.badge {\n  position: absolute;\n  top: 0;\n  right: 0;   /* coin haut-droit du parent */\n}\n```\n\n```html\n<div class=\"parent\">\n  <span class=\"badge\">Nouveau</span>\n</div>\n```\n\n## position: fixed\n\nFixé par rapport à la **fenêtre** (le viewport). Il **ne bouge pas** au défilement. Parfait pour une barre de navigation toujours visible ou un bouton « retour en haut ».\n\n```css\n.barre {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n}\n```\n\n## position: sticky\n\nMélange de `relative` et `fixed` : l'élément défile **normalement** jusqu'à atteindre un seuil (`top`), puis se **fige** à cet endroit tant que son conteneur est visible.\n\n```css\n.entete-section {\n  position: sticky;\n  top: 0;  /* se fige en haut quand on l'atteint */\n}\n```\n\n## z-index : gérer la superposition\n\nQuand des éléments positionnés se chevauchent, `z-index` décide **lequel est devant**. Plus le nombre est grand, plus l'élément est au premier plan. Il ne fonctionne que sur un élément **positionné** (pas `static`).\n\n```css\n.fond    { position: absolute; z-index: 1; }\n.dessus  { position: absolute; z-index: 10; } /* passe devant */\n```\n\n## Méthode Feynman\n\n> *« static = file normale ; relative = je me décale mais ma place reste ; absolute = je me décolle et me place dans le parent positionné ; fixed = je me punaise à l'écran ; sticky = je défile puis je me fige. z-index = qui passe devant quand ça se chevauche. »*",
+      "playground": null,
+      "quiz": [
+        {
+          "question": "Par rapport à quoi se positionne un élément en `position: absolute` ?",
+          "options": [
+            "Toujours par rapport à la fenêtre du navigateur",
+            "Par rapport à son ancêtre positionné le plus proche (sinon la page)",
+            "Par rapport à l'élément précédent dans le HTML",
+            "Par rapport à son contenu"
+          ],
+          "correctIndex": 1,
+          "explanation": "`absolute` cherche le premier ancêtre en `relative`/`absolute`/`fixed`. Si aucun n'existe, il se réfère au bloc racine (la page)."
+        },
+        {
+          "question": "Quelle valeur de `position` garde l'élément visible et figé même quand on fait défiler la page ?",
+          "options": [
+            "relative",
+            "static",
+            "absolute",
+            "fixed"
+          ],
+          "correctIndex": 3,
+          "explanation": "`fixed` ancre l'élément au viewport : il reste à la même place à l'écran pendant tout le défilement."
+        },
+        {
+          "question": "Pourquoi `z-index: 999` peut-il rester sans effet sur un élément ?",
+          "options": [
+            "Parce que la valeur est trop grande",
+            "Parce que l'élément est en `position: static`",
+            "Parce que z-index ne marche que sur les images",
+            "Parce qu'il faut aussi définir une opacité"
+          ],
+          "correctIndex": 1,
+          "explanation": "`z-index` n'a d'effet que sur un élément positionné (relative, absolute, fixed ou sticky). Sur un élément `static`, il est ignoré."
+        }
+      ]
+    },
+    {
+      "id": "flexbox",
+      "title": "4. Flexbox : justify-content, align-items, flex-direction",
+      "markdown": "## Métaphore\n\nFlexbox, c'est comme **ranger des livres sur une étagère** : tu poses un conteneur (l'étagère), et les éléments (les livres) s'alignent automatiquement, se serrent ou s'espacent selon tes consignes. Tu pilotes **une seule dimension à la fois** : soit une ligne, soit une colonne.\n\n## Activer Flexbox\n\nOn déclare `display: flex` sur le **conteneur parent**. Ses enfants directs deviennent des **items flex**.\n\n```css\n.conteneur {\n  display: flex;\n}\n```\n\n```html\n<div class=\"conteneur\">\n  <div>1</div>\n  <div>2</div>\n  <div>3</div>\n</div>\n```\n\n## Les deux axes\n\nFlexbox raisonne avec deux axes :\n\n- l'**axe principal** (main axis) : la direction d'alignement des items ;\n- l'**axe secondaire** (cross axis) : perpendiculaire au principal.\n\nLa direction de l'axe principal est fixée par `flex-direction`.\n\n## flex-direction\n\n```css\n.conteneur { flex-direction: row; }      /* défaut : en ligne, gauche → droite */\n.conteneur { flex-direction: column; }   /* en colonne, haut → bas */\n.conteneur { flex-direction: row-reverse; }    /* ligne inversée */\n.conteneur { flex-direction: column-reverse; } /* colonne inversée */\n```\n\nImportant : `justify-content` agit sur l'axe **principal**, `align-items` sur l'axe **secondaire**. Si tu passes en `column`, leurs rôles s'inversent visuellement.\n\n## justify-content (axe principal)\n\nRépartit les items le long de l'axe principal.\n\n```css\n.conteneur { justify-content: flex-start; }    /* collés au début (défaut) */\n.conteneur { justify-content: center; }        /* centrés */\n.conteneur { justify-content: flex-end; }      /* collés à la fin */\n.conteneur { justify-content: space-between; } /* écart égal, bords collés */\n.conteneur { justify-content: space-around; }  /* écart égal, demi-marge aux bords */\n.conteneur { justify-content: space-evenly; }  /* écarts strictement égaux partout */\n```\n\n## align-items (axe secondaire)\n\nAligne les items sur l'axe secondaire (la hauteur, en `row`).\n\n```css\n.conteneur { align-items: stretch; }    /* étirés sur toute la hauteur (défaut) */\n.conteneur { align-items: center; }     /* centrés verticalement */\n.conteneur { align-items: flex-start; } /* en haut */\n.conteneur { align-items: flex-end; }   /* en bas */\n```\n\n## Le centrage parfait (le grand classique)\n\nCentrer un élément horizontalement ET verticalement, le rêve de tout débutant, devient trivial :\n\n```css\n.conteneur {\n  display: flex;\n  justify-content: center; /* centre sur l'axe principal */\n  align-items: center;     /* centre sur l'axe secondaire */\n  height: 100vh;           /* hauteur de l'écran pour bien voir */\n}\n```\n\n## gap et wrap\n\n```css\n.conteneur {\n  display: flex;\n  gap: 16px;          /* espace entre les items, sans bidouiller les marges */\n  flex-wrap: wrap;    /* autorise le passage à la ligne si ça déborde */\n}\n```\n\n## Sur les items : flex-grow et flex\n\nLa propriété raccourcie `flex` contrôle comment un item grandit ou rétrécit.\n\n```css\n.item        { flex: 1; }   /* prend une part égale de l'espace restant */\n.item-large  { flex: 2; }   /* prend deux fois plus de place que flex: 1 */\n```\n\n## Méthode Feynman\n\n> *« display:flex sur le parent aligne les enfants sur un axe. flex-direction choisit l'axe (row ou column). justify-content répartit sur l'axe principal, align-items aligne sur l'axe secondaire. Pour centrer : les deux à center. gap pour les espaces, flex-wrap pour passer à la ligne. »*",
+      "playground": null,
+      "quiz": [
+        {
+          "question": "Sur quel élément faut-il déclarer `display: flex` ?",
+          "options": [
+            "Sur chaque enfant à aligner",
+            "Sur le conteneur parent des éléments à aligner",
+            "Sur la balise <body> obligatoirement",
+            "Sur la balise <html>"
+          ],
+          "correctIndex": 1,
+          "explanation": "`display: flex` se met sur le conteneur parent ; ses enfants directs deviennent automatiquement des items flex."
+        },
+        {
+          "question": "En `flex-direction: row`, quelle propriété centre les items horizontalement (sur l'axe principal) ?",
+          "options": [
+            "align-items: center",
+            "justify-content: center",
+            "text-align: center",
+            "vertical-align: middle"
+          ],
+          "correctIndex": 1,
+          "explanation": "`justify-content` agit sur l'axe principal (horizontal en row). `align-items` agit sur l'axe secondaire (vertical en row)."
+        },
+        {
+          "question": "Comment centrer parfaitement un élément à l'horizontale et à la verticale avec Flexbox ?",
+          "options": [
+            "justify-content: center et align-items: center sur le conteneur",
+            "margin: auto sur les quatre côtés uniquement",
+            "text-align: center et line-height",
+            "position: absolute et top: 50%"
+          ],
+          "correctIndex": 0,
+          "explanation": "Avec `display: flex`, combiner `justify-content: center` (axe principal) et `align-items: center` (axe secondaire) centre dans les deux directions."
+        }
+      ]
+    },
+    {
+      "id": "grid",
+      "title": "5. CSS Grid : grid-template-columns, fr, gap",
+      "markdown": "## Métaphore\n\nSi Flexbox range des livres sur **une étagère** (une dimension), **Grid** est une **grille de mots croisés** ou un **plateau d'échecs** : tu définis des **lignes ET des colonnes** en même temps, puis tu places les éléments dans les cases. C'est l'outil idéal pour les **mises en page en deux dimensions**.\n\n## Activer Grid\n\n```css\n.grille {\n  display: grid;\n}\n```\n\n```html\n<div class=\"grille\">\n  <div>A</div>\n  <div>B</div>\n  <div>C</div>\n</div>\n```\n\n## Définir les colonnes : grid-template-columns\n\nOn liste la largeur de **chaque colonne**.\n\n```css\n.grille {\n  display: grid;\n  grid-template-columns: 100px 100px 100px; /* 3 colonnes de 100px */\n}\n```\n\n## L'unité fr (fraction)\n\nL'unité `fr` représente une **fraction de l'espace disponible**. C'est la grande force de Grid : pas besoin de calculer des pourcentages.\n\n```css\n.grille {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes égales */\n}\n\n.grille-2 {\n  grid-template-columns: 1fr 2fr; /* la 2e colonne est 2x plus large */\n}\n\n.grille-3 {\n  grid-template-columns: 200px 1fr; /* 1re fixe, 2e prend le reste (idéal sidebar + contenu) */\n}\n```\n\n## repeat() : éviter les répétitions\n\n```css\n.grille {\n  /* équivaut à 1fr 1fr 1fr 1fr */\n  grid-template-columns: repeat(4, 1fr);\n}\n```\n\n## gap : l'espace entre les cases\n\n```css\n.grille {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;            /* même écart entre lignes et colonnes */\n  /* ou séparément : */\n  row-gap: 10px;\n  column-gap: 24px;\n}\n```\n\n## Définir aussi les lignes\n\n```css\n.grille {\n  display: grid;\n  grid-template-columns: repeat(2, 1fr);\n  grid-template-rows: 100px 200px; /* 1re ligne 100px, 2e ligne 200px */\n}\n```\n\n## Grille responsive sans media query\n\nLa combinaison `auto-fill` + `minmax` crée une grille qui s'adapte toute seule : chaque colonne fait au moins 200px, et le nombre de colonnes s'ajuste à la largeur disponible.\n\n```css\n.cartes {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n  gap: 16px;\n}\n```\n\n## Placer un élément sur plusieurs cases\n\n```css\n.titre {\n  grid-column: 1 / 3;  /* s'étend de la ligne de grille 1 à la 3 (2 colonnes) */\n}\n.encart {\n  grid-row: 1 / 3;     /* s'étend sur 2 lignes */\n}\n```\n\n## Flexbox ou Grid ?\n\n- **Flexbox** : alignement sur **une seule dimension** (une barre de navigation, une rangée de boutons).\n- **Grid** : mise en page sur **deux dimensions** (gabarit de page, galerie de cartes).\n\nLes deux se combinent très bien : Grid pour la structure globale, Flexbox à l'intérieur des cellules.\n\n## Méthode Feynman\n\n> *« display:grid + grid-template-columns définit les colonnes. L'unité fr partage l'espace restant (1fr 1fr = moitié-moitié). repeat() évite de tout écrire. gap met de l'espace entre les cases. auto-fill + minmax fait une grille responsive sans media query. Grid = 2D, Flexbox = 1D. »*",
+      "playground": null,
+      "quiz": [
+        {
+          "question": "Que produit `grid-template-columns: 1fr 2fr;` ?",
+          "options": [
+            "Deux colonnes de largeur fixe 1px et 2px",
+            "Une colonne qui prend deux fois plus d'espace que l'autre",
+            "Deux colonnes de 1% et 2%",
+            "Une seule colonne occupant trois fractions"
+          ],
+          "correctIndex": 1,
+          "explanation": "L'unité `fr` partage l'espace disponible. `1fr 2fr` donne une première colonne et une seconde deux fois plus large."
+        },
+        {
+          "question": "Que signifie `grid-template-columns: repeat(3, 1fr);` ?",
+          "options": [
+            "Une grille de 3 lignes de hauteur 1fr",
+            "Trois colonnes de largeur égale (équivaut à 1fr 1fr 1fr)",
+            "Répéter le contenu trois fois",
+            "Trois colonnes de 1 pixel"
+          ],
+          "correctIndex": 1,
+          "explanation": "`repeat(3, 1fr)` est un raccourci pour `1fr 1fr 1fr` : trois colonnes de largeur égale."
+        },
+        {
+          "question": "Dans quel cas Grid est-il plus adapté que Flexbox ?",
+          "options": [
+            "Pour aligner une rangée de boutons sur une seule ligne",
+            "Pour une mise en page en deux dimensions (lignes ET colonnes)",
+            "Pour centrer un seul élément",
+            "Pour gérer l'héritage des couleurs"
+          ],
+          "correctIndex": 1,
+          "explanation": "Grid excelle pour les mises en page 2D (lignes et colonnes simultanées). Flexbox est pensé pour une seule dimension à la fois."
+        }
+      ]
+    },
+    {
+      "id": "responsive-variables-transitions",
+      "title": "6. Responsive, unités, variables CSS et transitions",
+      "markdown": "## Métaphore\n\nUn site **responsive**, c'est comme de l'**eau** : il prend la forme de son contenant, qu'il s'agisse d'un grand écran d'ordinateur ou d'un petit téléphone. Plutôt qu'une mise en page rigide, on écrit des règles qui s'**adaptent**.\n\n## Les unités à connaître\n\n- **px** : pixel, taille **absolue** et fixe. Précis mais peu flexible.\n- **%** : pourcentage **relatif au parent** (`width: 50%` = la moitié du parent).\n- **em** : relatif à la taille de police de **l'élément** (ou héritée). `2em` = 2x la taille de texte courante. Attention : les `em` se **cumulent** entre parents et enfants.\n- **rem** (root em) : relatif à la taille de police de la **racine** (`<html>`, par défaut 16px). `1rem = 16px`. Plus prévisible que `em` car non cumulatif.\n- **vw / vh** : 1% de la **largeur / hauteur du viewport**. `100vh` = toute la hauteur de l'écran.\n\n```css\nhtml { font-size: 16px; }\n\n.titre {\n  font-size: 2rem;   /* 32px, basé sur la racine */\n  padding: 1em;      /* 32px ici, basé sur le font-size de l'élément */\n  width: 80%;        /* 80% du parent */\n  height: 50vh;      /* moitié de la hauteur de l'écran */\n}\n```\n\n**Conseil junior** : utilise `rem` pour les polices et espacements (cohérent et accessible), `%` ou `fr` pour les largeurs fluides, `px` pour les bordures fines.\n\n## Les media queries\n\nUne **media query** applique des règles **selon des conditions**, principalement la largeur de l'écran. C'est le cœur du responsive.\n\n```css\n/* Style de base (s'applique à tous) */\n.colonne { width: 100%; }\n\n/* Au-delà de 768px (tablette et plus) */\n@media (min-width: 768px) {\n  .colonne { width: 50%; }\n}\n\n/* Au-delà de 1024px (ordinateur) */\n@media (min-width: 1024px) {\n  .colonne { width: 33.33%; }\n}\n```\n\n## L'approche mobile-first\n\nLa bonne pratique moderne consiste à écrire d'abord le style pour **mobile** (le cas le plus simple), puis à **ajouter** des règles pour les écrans plus grands avec `min-width`. On part du petit et on enrichit vers le grand.\n\n```css\n/* 1. Mobile par défaut : tout empilé */\n.menu { display: flex; flex-direction: column; }\n\n/* 2. À partir de la tablette : on passe en ligne */\n@media (min-width: 768px) {\n  .menu { flex-direction: row; }\n}\n```\n\nL'inverse (`max-width`, du grand vers le petit) s'appelle desktop-first et est aujourd'hui moins recommandé.\n\n## Ne pas oublier la balise viewport\n\nSans cette ligne dans le `<head>`, les media queries ne fonctionnent pas correctement sur mobile :\n\n```html\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n```\n\n## Les variables CSS (custom properties)\n\nOn définit des valeurs réutilisables, par convention sur `:root` (la racine), avec un préfixe `--`. On les lit avec `var()`.\n\n```css\n:root {\n  --couleur-principale: #2563eb;\n  --espacement: 16px;\n  --rayon: 8px;\n}\n\n.bouton {\n  background: var(--couleur-principale);\n  padding: var(--espacement);\n  border-radius: var(--rayon);\n}\n\n.bouton-secondaire {\n  /* var() accepte une valeur de repli si la variable n'existe pas */\n  color: var(--couleur-texte, #333);\n}\n```\n\nAvantage : changer la couleur du thème à **un seul endroit** met tout à jour. Les variables s'**héritent** et peuvent être redéfinies localement (utile pour un thème sombre).\n\n## Les transitions\n\nUne **transition** anime en douceur le passage d'une valeur à une autre (au survol, au focus...). On précise *quelle* propriété animer et *combien de temps*.\n\n```css\n.bouton {\n  background: #2563eb;\n  transition: background 0.3s ease; /* propriété | durée | courbe */\n}\n\n.bouton:hover {\n  background: #1e40af; /* le changement se fait en fondu sur 0.3s */\n}\n```\n\nOn peut animer plusieurs propriétés à la fois :\n\n```css\n.carte {\n  transform: scale(1);\n  box-shadow: 0 1px 3px rgba(0,0,0,0.2);\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.carte:hover {\n  transform: scale(1.05); /* léger zoom */\n  box-shadow: 0 8px 20px rgba(0,0,0,0.3);\n}\n```\n\n`all` anime toutes les propriétés modifiables, mais cibler précisément est meilleur pour les performances.\n\n## Méthode Feynman\n\n> *« Le responsive adapte la page à la taille de l'écran. rem se base sur la racine (prévisible), % sur le parent, vh/vw sur l'écran. Les media queries appliquent des règles selon la largeur ; en mobile-first on part du petit avec min-width. Les variables (--nom + var()) centralisent les valeurs du thème. Les transitions animent en douceur les changements de valeur. »*",
+      "playground": null,
+      "quiz": [
+        {
+          "question": "Quelle est la différence principale entre `em` et `rem` ?",
+          "options": [
+            "`em` se base sur la racine <html>, `rem` sur le parent",
+            "`rem` se base sur la taille de police de la racine <html>, `em` sur celle de l'élément (cumulable)",
+            "Les deux sont identiques",
+            "`rem` est une unité absolue comme px"
+          ],
+          "correctIndex": 1,
+          "explanation": "`rem` est relatif à la police de la racine (<html>), donc prévisible. `em` est relatif à la police de l'élément courant et se cumule entre parents et enfants."
+        },
+        {
+          "question": "Que signifie l'approche « mobile-first » ?",
+          "options": [
+            "Écrire d'abord le style desktop puis réduire avec max-width",
+            "Écrire d'abord le style mobile, puis enrichir pour les grands écrans avec min-width",
+            "N'afficher le site que sur mobile",
+            "Utiliser uniquement des unités px"
+          ],
+          "correctIndex": 1,
+          "explanation": "Mobile-first : on écrit le style de base pour mobile, puis on ajoute des media queries `min-width` pour adapter aux écrans plus larges."
+        },
+        {
+          "question": "Comment lit-on la valeur d'une variable CSS définie par `--couleur: blue;` ?",
+          "options": [
+            "color: $couleur;",
+            "color: var(--couleur);",
+            "color: --couleur;",
+            "color: get(couleur);"
+          ],
+          "correctIndex": 1,
+          "explanation": "On déclare avec `--couleur: blue;` et on lit avec la fonction `var(--couleur)`. Une valeur de repli est possible : `var(--couleur, black)`."
+        }
+      ]
+    }
+  ]
+};

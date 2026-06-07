@@ -3,18 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulateur d'entretien technique — .NET / Angular</title>
+<title>Examen — Simulateur d'entretien technique</title>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="topbar">
+<header class="topbar">
   <div class="logo">e</div>
-  <div>
+  <div class="topbar-title">
     <h1>Simulateur d'entretien technique</h1>
-    <small>C# / .NET · ASP.NET Core · EF Core · Angular · JS/TS · SQL · Git · Agile · Java · Spring Boot · Docker</small>
+    <small>C# · ASP.NET · EF Core · Angular · JS/TS · SQL · Git · Agile · Java · Spring · Docker</small>
   </div>
-</div>
+  <nav class="tabs">
+    <a class="tab active" href="index.html">📝 Examen</a>
+    <a class="tab" href="cours.html">📚 Cours</a>
+  </nav>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème" title="Clair / Sombre">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+  </button>
+</header>
 
 <div class="wrap">
 
