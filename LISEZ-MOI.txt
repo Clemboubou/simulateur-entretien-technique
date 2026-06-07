@@ -25,10 +25,10 @@ CE QUI S'EXÉCUTE POUR DE VRAI
          (sql.js / WebAssembly, embarqué dans le dossier).
          => fonctionne même SANS connexion internet.
 - JavaScript : exécuté en local, instantané, hors-ligne.
-- C#   : VRAIMENT compilé et exécuté ! Le code est envoyé à un
-         service gratuit (paiza.io) qui le compile et renvoie le
-         résultat des tests. => nécessite une connexion internet.
-         Sans connexion, le C# bascule en auto-évaluation.
+- C# et Java : VRAIMENT compilés et exécutés ! Le code est envoyé
+         à un service gratuit (Wandbox) qui le compile et renvoie
+         le résultat des tests. => nécessite une connexion internet.
+         Sans connexion, ils basculent en auto-évaluation.
 
 REMARQUE : l'éditeur de code "riche" (Monaco, comme VS Code) se
 charge depuis internet au premier lancement. Sans connexion, il

@@ -66,7 +66,7 @@ function loadMonaco() {
   });
   return monacoReady;
 }
-const LANG_MAP = { csharp: 'csharp', sql: 'sql', javascript: 'javascript', typescript: 'typescript' };
+const LANG_MAP = { csharp: 'csharp', sql: 'sql', javascript: 'javascript', typescript: 'typescript', java: 'java' };
 
 /* ---------- sql.js (SQLite WebAssembly, exécution dans le navigateur) ---------- */
 let sqlReady = null;
@@ -250,7 +250,9 @@ function renderCode(card, q, a) {
   const isJs = q.language === 'javascript';
   const isSql = q.language === 'sql';
   const isCs = q.language === 'csharp';
-  const ext = isJs ? 'js' : (isSql ? 'sql' : 'cs');
+  const isJava = q.language === 'java';
+  const isCompiled = isCs || isJava; // exécutés à distance via Wandbox
+  const ext = isJs ? 'js' : (isSql ? 'sql' : (isJava ? 'java' : 'cs'));
 
   // Bloc "jeu de données" pour le SQL
   const datasetBlock = isSql && q.setup
@@ -276,11 +278,11 @@ function renderCode(card, q, a) {
     <div class="run-zone">
       ${isJs ? `<button class="btn btn-vert" id="runBtn">▶ Exécuter les tests</button>` : ''}
       ${isSql ? `<button class="btn btn-vert" id="runBtn">▶ Exécuter la requête</button>` : ''}
-      ${isCs ? `<button class="btn btn-vert" id="runBtn">▶ Compiler &amp; exécuter (C#)</button>` : ''}
+      ${isCompiled ? `<button class="btn btn-vert" id="runBtn">▶ Compiler &amp; exécuter (${isJava ? 'Java' : 'C#'})</button>` : ''}
       <button class="btn btn-ghost" id="solBtn">Voir la solution</button>
     </div>
     <div id="resultsZone"></div>
-    ${isCs ? `<div class="self-grade" id="selfGrade" style="display:none">
+    ${isCompiled ? `<div class="self-grade" id="selfGrade" style="display:none">
         <span class="muted" style="font-size:12px;width:100%">Si l'exécution échoue (hors-ligne), auto-évalue-toi :</span>
         <button class="sg-btn" data-g="1">✅ Réussi</button>
         <button class="sg-btn" data-g="0.5">🟠 Partiel</button>
@@ -319,9 +321,10 @@ function renderCode(card, q, a) {
       renderSqlResults(res);
     });
     if (a.codeRun) renderSqlResults(a.codeRun);
-  } else if (isCs) {
-    // C# : compilation + exécution réelle via l'API paiza.io (Mono, dans le cloud)
+  } else if (isCompiled) {
+    // C# / Java : compilation + exécution réelle via l'API Wandbox (CORS ouvert)
     const sg = $('#selfGrade');
+    const lang = isJava ? 'Java' : 'C#';
     const showSelfGrade = () => {
       sg.style.display = 'flex';
       sg.querySelectorAll('.sg-btn').forEach(b => {
@@ -334,13 +337,13 @@ function renderCode(card, q, a) {
       });
     };
     $('#runBtn').addEventListener('click', async () => {
-      const harness = csHarnessFor(q);
+      const harness = isJava ? javaHarnessFor(q) : csHarnessFor(q);
       if (!harness) { renderCsResults({ ok: false, error: 'Harness de test introuvable pour cet exercice.' }); return; }
       const btn = $('#runBtn');
       const code = state.editors[q.id] ? state.editors[q.id].getValue() : q.starterCode;
       btn.disabled = true; btn.textContent = '⏳ Compilation & exécution...';
-      const res = await runCsharp(code, harness);
-      btn.disabled = false; btn.innerHTML = '▶ Compiler &amp; exécuter (C#)';
+      const res = isJava ? await runJava(code, harness) : await runCsharp(code, harness);
+      btn.disabled = false; btn.innerHTML = '▶ Compiler &amp; exécuter (' + lang + ')';
       a.codeRun = res;
       renderCsResults(res);
       if (!res.ok) showSelfGrade(); // repli si l'API est injoignable (hors-ligne)
@@ -499,46 +502,133 @@ public class __Runner {
 };
 function csHarnessFor(q) { for (const k in CS_HARNESS) if (q.starterCode.indexOf(k) > -1) return CS_HARNESS[k]; return null; }
 
-// Envoie code + harness à paiza.io, attend le résultat, et parse les lignes CASE|/SCORE|
-async function runCsharp(userCode, harness) {
-  const source = userCode + '\n\n' + harness;
-  let created;
-  try {
-    const r = await fetch('https://api.paiza.io/runners/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ source_code: source, language: 'csharp', api_key: 'guest' })
-    });
-    created = await r.json();
-  } catch (e) { return { ok: false, error: "Connexion à l'API d'exécution impossible (vérifie ta connexion internet)." }; }
-  if (!created || !created.id) return { ok: false, error: "Réponse inattendue de l'API d'exécution." };
-
-  let status = created.status, tries = 0;
-  while (status !== 'completed' && tries < 25) {
-    await new Promise(r => setTimeout(r, 1000));
-    try {
-      const r = await fetch('https://api.paiza.io/runners/get_status?id=' + created.id + '&api_key=guest');
-      status = (await r.json()).status;
-    } catch (e) { return { ok: false, error: "Connexion interrompue pendant l'exécution." }; }
-    tries++;
+/* ---------- Java : harnesses de test (classes non-public, exécutées par Wandbox/OpenJDK) ---------- */
+const JAVA_HARNESS = {
+  Palindrome: `
+class __JavaRunner {
+  static int p=0,t=0;
+  static void A(String l,boolean ok,String g){t++;if(ok){p++;System.out.println("CASE|"+l+"|PASS");}else System.out.println("CASE|"+l+"|FAIL|"+g);}
+  public static void main(String[] a){
+    try{
+      boolean g1=Palindrome.isPalindrome("Level");A("Level -> true",g1,"obtenu="+g1);
+      boolean g2=Palindrome.isPalindrome("hello");A("hello -> false",!g2,"obtenu="+g2);
+      boolean g3=Palindrome.isPalindrome("Anna");A("Anna -> true",g3,"obtenu="+g3);
+      boolean g4=Palindrome.isPalindrome("a");A("a -> true",g4,"obtenu="+g4);
+    }catch(Exception e){System.out.println("CASE|execution|FAIL|"+e);}
+    System.out.println("SCORE|"+p+"|"+t);
   }
-  if (status !== 'completed') return { ok: false, error: "Délai d'exécution dépassé, réessaie." };
-
-  let det;
-  try { det = await (await fetch('https://api.paiza.io/runners/get_details?id=' + created.id + '&api_key=guest')).json(); }
-  catch (e) { return { ok: false, error: 'Connexion interrompue.' }; }
-
-  if (det.build_result === 'failure') {
-    return { ok: true, build: false, buildError: (det.build_stderr || 'Erreur de compilation').trim(), results: [], passed: 0, total: 0 };
+}`,
+  FizzBuzz: `
+class __JavaRunner {
+  static int p=0,t=0;
+  static void A(String l,boolean ok,String g){t++;if(ok){p++;System.out.println("CASE|"+l+"|PASS");}else System.out.println("CASE|"+l+"|FAIL|"+g);}
+  public static void main(String[] a){
+    try{
+      String r1=FizzBuzz.fizzBuzz(15);A("15 -> FizzBuzz",r1.equals("FizzBuzz"),"obtenu="+r1);
+      String r2=FizzBuzz.fizzBuzz(9);A("9 -> Fizz",r2.equals("Fizz"),"obtenu="+r2);
+      String r3=FizzBuzz.fizzBuzz(10);A("10 -> Buzz",r3.equals("Buzz"),"obtenu="+r3);
+      String r4=FizzBuzz.fizzBuzz(7);A("7 -> 7",r4.equals("7"),"obtenu="+r4);
+    }catch(Exception e){System.out.println("CASE|execution|FAIL|"+e);}
+    System.out.println("SCORE|"+p+"|"+t);
   }
-  const lines = (det.stdout || '').split('\n');
+}`,
+  Anagram: `
+class __JavaRunner {
+  static int p=0,t=0;
+  static void A(String l,boolean ok,String g){t++;if(ok){p++;System.out.println("CASE|"+l+"|PASS");}else System.out.println("CASE|"+l+"|FAIL|"+g);}
+  public static void main(String[] a){
+    try{
+      boolean a1=Anagram.areAnagrams("listen","silent");A("listen/silent -> true",a1,"obtenu="+a1);
+      boolean a2=Anagram.areAnagrams("Triangle","Integral");A("Triangle/Integral -> true",a2,"obtenu="+a2);
+      boolean a3=Anagram.areAnagrams("hello","world");A("hello/world -> false",!a3,"obtenu="+a3);
+      boolean a4=Anagram.areAnagrams("abc","ab");A("abc/ab -> false",!a4,"obtenu="+a4);
+    }catch(Exception e){System.out.println("CASE|execution|FAIL|"+e);}
+    System.out.println("SCORE|"+p+"|"+t);
+  }
+}`,
+  CharFrequency: `
+class __JavaRunner {
+  static int p=0,t=0;
+  static void A(String l,boolean ok,String g){t++;if(ok){p++;System.out.println("CASE|"+l+"|PASS");}else System.out.println("CASE|"+l+"|FAIL|"+g);}
+  public static void main(String[] a){
+    try{
+      char c1=CharFrequency.mostFrequentChar("aabbbc");A("aabbbc -> b",c1=='b',"obtenu="+c1);
+      char c2=CharFrequency.mostFrequentChar("abcabc");A("abcabc -> a",c2=='a',"obtenu="+c2);
+      char c3=CharFrequency.mostFrequentChar("x");A("x -> x",c3=='x',"obtenu="+c3);
+      char c4=CharFrequency.mostFrequentChar("aaabbbb");A("aaabbbb -> b",c4=='b',"obtenu="+c4);
+    }catch(Exception e){System.out.println("CASE|execution|FAIL|"+e);}
+    System.out.println("SCORE|"+p+"|"+t);
+  }
+}`,
+  ArrayUtils: `
+class __JavaRunner {
+  static int p=0,t=0;
+  static void A(String l,boolean ok,String g){t++;if(ok){p++;System.out.println("CASE|"+l+"|PASS");}else System.out.println("CASE|"+l+"|FAIL|"+g);}
+  public static void main(String[] a){
+    try{
+      int s1=ArrayUtils.secondLargest(new int[]{3,1,4,1,5});A("{3,1,4,1,5} -> 4",s1==4,"obtenu="+s1);
+      int s2=ArrayUtils.secondLargest(new int[]{10,10,9});A("{10,10,9} -> 9",s2==9,"obtenu="+s2);
+      int s3=ArrayUtils.secondLargest(new int[]{2,1});A("{2,1} -> 1",s3==1,"obtenu="+s3);
+      int s4=ArrayUtils.secondLargest(new int[]{-1,-2,-3});A("{-1,-2,-3} -> -2",s4==-2,"obtenu="+s4);
+    }catch(Exception e){System.out.println("CASE|execution|FAIL|"+e);}
+    System.out.println("SCORE|"+p+"|"+t);
+  }
+}`,
+  SafeString: `
+class __JavaRunner {
+  static int p=0,t=0;
+  static void A(String l,boolean ok,String g){t++;if(ok){p++;System.out.println("CASE|"+l+"|PASS");}else System.out.println("CASE|"+l+"|FAIL|"+g);}
+  public static void main(String[] a){
+    try{
+      int l1=SafeString.safeLength("hello");A("hello -> 5",l1==5,"obtenu="+l1);
+      int l2=SafeString.safeLength(null);A("null -> 0",l2==0,"obtenu="+l2);
+      int l3=SafeString.safeLength("");A("vide -> 0",l3==0,"obtenu="+l3);
+      int l4=SafeString.safeLength("a b");A("a b -> 3",l4==3,"obtenu="+l4);
+    }catch(Exception e){System.out.println("CASE|execution|FAIL|"+e);}
+    System.out.println("SCORE|"+p+"|"+t);
+  }
+}`
+};
+function javaHarnessFor(q) { return JAVA_HARNESS[q.className] || null; }
+
+/* ---------- Exécution distante via l'API Wandbox (CORS ouvert : marche depuis le web) ----------
+   Compilateurs : C# = mono-6.12.0.199, Java = openjdk-jdk-21+35. Appel synchrone (un seul POST). */
+function parseRunnerOutput(stdout) {
+  const lines = (stdout || '').split('\n');
   const results = []; let passed = 0, total = 0;
   lines.forEach(line => {
     if (line.indexOf('CASE|') === 0) { const p = line.split('|'); results.push({ label: p[1], pass: p[2] === 'PASS', got: p[3] || '' }); }
     else if (line.indexOf('SCORE|') === 0) { const p = line.split('|'); passed = parseInt(p[1], 10) || 0; total = parseInt(p[2], 10) || 0; }
   });
   if (total === 0 && results.length) { total = results.length; passed = results.filter(r => r.pass).length; }
-  return { ok: true, build: true, results, passed, total, runtimeError: (det.stderr || '').trim() };
+  return { results, passed, total };
+}
+
+async function runWandbox(source, compiler) {
+  let json;
+  try {
+    const r = await fetch('https://wandbox.org/api/compile.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: source, compiler: compiler, options: '', stdin: '', 'compiler-option-raw': '', 'runtime-option-raw': '' })
+    });
+    json = await r.json();
+  } catch (e) { return { ok: false, error: "Connexion à l'API d'exécution impossible (vérifie ta connexion internet)." }; }
+  const parsed = parseRunnerOutput(json.program_output || '');
+  if (parsed.total === 0 && parsed.results.length === 0) {
+    const err = (json.compiler_error || '').trim() || (json.program_error || '').trim() || 'Aucune sortie produite. Vérifie ton code.';
+    return { ok: true, build: false, buildError: err, results: [], passed: 0, total: 0 };
+  }
+  return { ok: true, build: true, results: parsed.results, passed: parsed.passed, total: parsed.total, runtimeError: (json.program_error || '').trim() };
+}
+
+async function runCsharp(userCode, harness) {
+  return runWandbox(userCode + '\n\n' + harness, 'mono-6.12.0.199');
+}
+async function runJava(userCode, harness) {
+  // Wandbox compile dans prog.java : les classes ne doivent pas être public. Imports en tête, harness à la fin.
+  const stripped = userCode.replace(/\bpublic\s+(class|interface|enum)\b/g, '$1');
+  return runWandbox(stripped + '\n\n' + harness, 'openjdk-jdk-21+35');
 }
 
 function renderCsResults(res) {
@@ -618,7 +708,7 @@ function computeScores() {
     } else if (q.language === 'javascript' || q.language === 'sql') {
       const r = a.codeRun;
       a.score = (r && r.ok && r.total) ? a.max * (r.passed / r.total) : 0;
-    } else if (q.language === 'csharp') {
+    } else if (q.language === 'csharp' || q.language === 'java') {
       const r = a.codeRun;
       if (r && r.ok && r.build !== false && r.total) a.score = a.max * (r.passed / r.total);
       else a.score = (a.selfGrade != null) ? a.max * a.selfGrade : 0;
@@ -719,8 +809,8 @@ function buildReport() {
       let got;
       if (q.language === 'javascript' && a.codeRun && a.codeRun.ok) got = `${a.codeRun.passed}/${a.codeRun.total} tests réussis`;
       else if (q.language === 'sql' && a.codeRun && a.codeRun.ok) got = a.codeRun.pass ? 'Requête correcte ✓' : 'Requête incorrecte';
-      else if (q.language === 'csharp' && a.codeRun && a.codeRun.ok && a.codeRun.build !== false) got = `${a.codeRun.passed}/${a.codeRun.total} tests réussis (compilé)`;
-      else if (q.language === 'csharp' && a.codeRun && a.codeRun.build === false) got = 'Erreur de compilation';
+      else if ((q.language === 'csharp' || q.language === 'java') && a.codeRun && a.codeRun.ok && a.codeRun.build !== false) got = `${a.codeRun.passed}/${a.codeRun.total} tests réussis (compilé)`;
+      else if ((q.language === 'csharp' || q.language === 'java') && a.codeRun && a.codeRun.build === false) got = 'Erreur de compilation';
       else if (a.selfGrade != null) got = `Auto-évaluation : ${a.selfGrade === 1 ? 'Réussi' : a.selfGrade === 0.5 ? 'Partiel' : 'Échoué'}`;
       else got = '(non évalué)';
       body = `
