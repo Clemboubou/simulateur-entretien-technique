@@ -136,6 +136,8 @@ function highlightTree(courseId, idx) {
 /* ---------- Accueil ---------- */
 function renderWelcome() {
   highlightTree(null, null);
+  const toc = document.getElementById('toc'); if (toc) { toc.classList.add('hidden'); toc.innerHTML = ''; }
+  teardownSpy();
   const cards = courseIds.map(id => {
     const c = COURSES[id];
     return `<div class="course-card" data-course="${id}">
@@ -179,9 +181,42 @@ function renderChapter(courseId, chapterId) {
   if (ch.quiz && ch.quiz.length) renderQuiz(ch.quiz);
   // Navigation chapitre
   renderChapNav(c, idx);
+  // Table des matières "Sur cette page"
+  buildToc();
 
   highlightTree(courseId, idx);
   window.scrollTo(0, 0);
+}
+
+/* ---------- "Sur cette page" (TOC droite + scroll-spy) ---------- */
+function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 40); }
+function buildToc() {
+  const toc = document.getElementById('toc');
+  const heads = Array.from(document.querySelectorAll('.md h2, .md h3'));
+  if (heads.length < 2) { toc.classList.add('hidden'); toc.innerHTML = ''; teardownSpy(); return; }
+  heads.forEach((h, i) => { h.id = 'sec-' + i + '-' + slug(h.textContent); });
+  toc.classList.remove('hidden');
+  toc.innerHTML = '<div class="toc-title">Sur cette page</div>' + heads.map(h =>
+    `<a href="#${h.id}" class="${h.tagName === 'H3' ? 'lvl3' : ''}" data-id="${h.id}">${esc(h.textContent)}</a>`
+  ).join('');
+  toc.querySelectorAll('a').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    const el = document.getElementById(a.dataset.id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 76, behavior: 'smooth' });
+  }));
+  setupSpy(heads);
+}
+function teardownSpy() { if (window.__spy) { window.removeEventListener('scroll', window.__spy); window.__spy = null; } }
+function setupSpy(heads) {
+  teardownSpy();
+  const fn = () => {
+    let cur = heads[0];
+    for (const h of heads) { if (h.getBoundingClientRect().top <= 100) cur = h; else break; }
+    document.querySelectorAll('#toc a').forEach(a => a.classList.toggle('active', a.dataset.id === cur.id));
+  };
+  window.__spy = fn;
+  window.addEventListener('scroll', fn, { passive: true });
+  fn();
 }
 
 function renderPlayground(pg) {
