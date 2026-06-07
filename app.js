@@ -2,6 +2,19 @@
    Simulateur d'entretien technique — logique applicative
    ============================================================ */
 
+/* Filtre le warning cosmétique et inoffensif du loader AMD de Monaco
+   ("Duplicate definition of module 'vs/editor/editor.main'"). Sans impact. */
+(function () {
+  ['warn', 'error'].forEach(function (level) {
+    const original = console[level];
+    console[level] = function () {
+      if (arguments.length && typeof arguments[0] === 'string' &&
+          arguments[0].indexOf('Duplicate definition of module') !== -1) return;
+      return original.apply(console, arguments);
+    };
+  });
+})();
+
 /* ---------- Préparation des données ---------- */
 QUESTIONS.forEach((q, i) => { q.id = i; });
 
