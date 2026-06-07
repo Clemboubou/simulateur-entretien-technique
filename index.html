@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur d'entretien technique — .NET / Angular</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">e</div>
+  <div>
+    <h1>Simulateur d'entretien technique</h1>
+    <small>Stack .NET / C# · ASP.NET Core · EF Core · Angular · JS/TS · SQL · Git · Agile</small>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ================= ACCUEIL ================= -->
+  <section id="screen-home" class="screen active">
+    <div class="card">
+      <h2>Prêt pour ton test ?</h2>
+      <p class="muted">Réponds à des questions à choix multiples et à des exercices de code chronométrés, puis reçois un rapport détaillé par compétence — comme sur une vraie plateforme de recrutement.</p>
+
+      <div class="field">
+        <label for="name">Ton nom</label>
+        <input type="text" id="name" placeholder="Ex : MANFREDA" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Catégories à inclure</label>
+        <div class="cats" id="cats"></div>
+        <div style="margin-top:10px;display:flex;gap:10px">
+          <button class="btn btn-ghost" id="selAll" type="button">Tout cocher</button>
+          <button class="btn btn-ghost" id="selNone" type="button">Tout décocher</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="count">Nombre de questions</label>
+          <select id="count">
+            <option value="10">10 questions (rapide)</option>
+            <option value="20" selected>20 questions (standard)</option>
+            <option value="30">30 questions (complet)</option>
+            <option value="999">Toutes les questions</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Options</label>
+          <label class="toggle"><input type="checkbox" id="incCode" checked> Inclure les exercices de code (IDE)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card tips">
+      <strong>💡 Conseils avant de commencer</strong>
+      <ul id="tipsList"></ul>
+    </div>
+
+    <button class="btn btn-primary btn-lg" id="startBtn">Démarrer le test ▶</button>
+  </section>
+
+  <!-- ================= TEST ================= -->
+  <section id="screen-test" class="screen">
+    <div class="test-bar">
+      <span class="badge" id="qCat">C#</span>
+      <span class="badge sub" id="qSub">Language</span>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+        <div class="progress-label" id="progLbl">Question 1 / 20</div>
+      </div>
+      <div class="timer" id="timer">--:--</div>
+    </div>
+
+    <div class="card" id="qCard"><!-- question injectée ici --></div>
+
+    <div class="nav-btns">
+      <button class="btn btn-ghost" id="prevBtn">◀ Précédent</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" id="skipBtn">Passer</button>
+        <button class="btn btn-primary" id="nextBtn">Suivant ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RAPPORT ================= -->
+  <section id="screen-report" class="screen">
+    <div class="card">
+      <p class="report-hello" id="hello">Bonjour, votre rapport de test est ci-dessous.</p>
+      <p class="muted" id="reportDate"></p>
+      <div class="verdict" id="verdict"></div>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="k-icon">🏆</div>
+          <div class="k-val" id="kPoints">0 / 0</div>
+          <div class="k-sub" id="kPointsPct">Points</div>
+        </div>
+        <div class="kpi">
+          <div class="k-icon">⏱️</div>
+          <div class="k-val" id="kTime">--:--</div>
+          <div class="k-sub" id="kTimePct">Durée</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin:6px 2px">Résultats par catégorie</h3>
+    <div id="catReport"></div>
+
+    <h3 style="margin:22px 2px 8px">Détail des réponses</h3>
+    <div id="detailReport"></div>
+
+    <div class="report-actions no-print">
+      <button class="btn btn-vert" id="printBtn">🖨️ Imprimer / PDF</button>
+      <button class="btn btn-primary" id="restartBtn">↻ Recommencer</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- Monaco Editor (IDE intégré, open-source, le moteur de VS Code) -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<!-- sql.js : SQLite compilé en WebAssembly (embarqué en local, fonctionne hors-ligne) -->
+<script src="sql-wasm.js"></script>
+<script src="sql-wasm-binary.js"></script>
+<script src="questions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

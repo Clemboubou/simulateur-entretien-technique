@@ -1,0 +1,6 @@
+# Fichiers temporaires de test (préfixés par _)
+_*.js
+# OS / éditeurs
+Thumbs.db
+.DS_Store
+.vscode/

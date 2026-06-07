@@ -1,0 +1,47 @@
+============================================================
+  SIMULATEUR D'ENTRETIEN TECHNIQUE — .NET / Angular
+============================================================
+
+COMMENT L'UTILISER
+------------------
+1. Double-clique sur "index.html" : il s'ouvre dans ton navigateur
+   (Chrome, Edge, Firefox...). Aucun logiciel à installer.
+2. Mets ton nom, choisis les catégories, lance le test.
+3. À la fin, tu obtiens un rapport détaillé par compétence,
+   avec les explications de chaque réponse.
+
+
+COMMENT L'ENVOYER À QUELQU'UN
+-----------------------------
+- Compresse tout le dossier "simulateur-entretien" en .zip
+  (clic droit > Envoyer vers > Dossier compressé).
+- Envoie le .zip. La personne le décompresse et double-clique
+  sur "index.html". C'est tout — elle n'a besoin de RIEN installer.
+
+
+CE QUI S'EXÉCUTE POUR DE VRAI
+-----------------------------
+- SQL  : exécuté dans le navigateur par un vrai moteur SQLite
+         (sql.js / WebAssembly, embarqué dans le dossier).
+         => fonctionne même SANS connexion internet.
+- JavaScript : exécuté en local, instantané, hors-ligne.
+- C#   : VRAIMENT compilé et exécuté ! Le code est envoyé à un
+         service gratuit (paiza.io) qui le compile et renvoie le
+         résultat des tests. => nécessite une connexion internet.
+         Sans connexion, le C# bascule en auto-évaluation.
+
+REMARQUE : l'éditeur de code "riche" (Monaco, comme VS Code) se
+charge depuis internet au premier lancement. Sans connexion, il
+est remplacé par une zone de texte simple — mais SQL et JS
+continuent de s'exécuter normalement.
+
+
+CONTENU DU DOSSIER
+------------------
+- index.html ............ la page à ouvrir
+- style.css ............. l'apparence
+- questions.js .......... les 125 questions (modifiable)
+- app.js ................ la logique (timer, IDE, scoring, rapport)
+- sql-wasm.js / sql-wasm-binary.js ... le moteur SQLite embarqué
+
+Bon entraînement !
