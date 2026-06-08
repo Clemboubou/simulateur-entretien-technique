@@ -143,6 +143,31 @@ a:hover { text-decoration: underline; }
 }
 .md pre code { background: none; padding: 0; font-size: 13.3px; color: var(--code-text); }
 
+/* ===== Coloration syntaxique (highlight.js) — thème maison clair/sombre ===== */
+:root {
+  --hl-comment:#6e7781; --hl-keyword:#cf222e; --hl-string:#0a3069; --hl-number:#0550ae;
+  --hl-func:#8250df; --hl-type:#953800; --hl-attr:#0550ae; --hl-tag:#116329; --hl-meta:#0550ae;
+}
+:root[data-theme="dark"] {
+  --hl-comment:#8b949e; --hl-keyword:#ff7b72; --hl-string:#a5d6ff; --hl-number:#79c0ff;
+  --hl-func:#d2a8ff; --hl-type:#ffa657; --hl-attr:#79c0ff; --hl-tag:#7ee787; --hl-meta:#79c0ff;
+}
+.md pre code.hljs { background: transparent; color: var(--code-text); padding: 0; }
+.hljs-comment, .hljs-quote { color: var(--hl-comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-doctag, .hljs-section, .hljs-name { color: var(--hl-keyword); }
+.hljs-string, .hljs-regexp, .hljs-addition, .hljs-meta .hljs-string { color: var(--hl-string); }
+.hljs-number, .hljs-variable, .hljs-template-variable, .hljs-bullet, .hljs-link, .hljs-symbol { color: var(--hl-number); }
+.hljs-title, .hljs-title.function_ { color: var(--hl-func); }
+.hljs-type, .hljs-built_in, .hljs-class .hljs-title, .hljs-title.class_ { color: var(--hl-type); }
+.hljs-attr, .hljs-attribute, .hljs-selector-class, .hljs-selector-attr, .hljs-selector-pseudo, .hljs-property { color: var(--hl-attr); }
+.hljs-tag { color: var(--hl-tag); }
+.hljs-meta, .hljs-operator { color: var(--hl-meta); }
+.hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
+
+/* Aperçu HTML/CSS en direct (playground "html") */
+.pg-preview { width: 100%; height: 280px; border: none; background: #fff; display: block; }
+.pg-btns { margin-left: auto; display: flex; gap: 8px; }
+
 .md table { border-collapse: collapse; width: 100%; margin: 0 0 18px; font-size: 14px; display: block; overflow-x: auto; }
 .md th, .md td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
 .md th { background: var(--surface); font-weight: 650; }

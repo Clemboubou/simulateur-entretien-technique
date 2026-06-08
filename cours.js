@@ -44,7 +44,7 @@ function loadMonaco() {
   });
   return monacoReady;
 }
-const LANG = { csharp: 'csharp', java: 'java', sql: 'sql', javascript: 'javascript' };
+const LANG = { csharp: 'csharp', java: 'java', sql: 'sql', javascript: 'javascript', html: 'html' };
 async function mountEditor(host, code, lang) {
   const ok = await loadMonaco();
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -53,10 +53,10 @@ async function mountEditor(host, code, lang) {
       value: code, language: LANG[lang] || 'plaintext', theme: dark ? 'vs-dark' : 'vs',
       minimap: { enabled: false }, fontSize: 13, scrollBeyondLastLine: false, automaticLayout: true, tabSize: 2
     });
-    return { getValue: () => ed.getValue(), dispose: () => ed.dispose() };
+    return { getValue: () => ed.getValue(), setValue: v => ed.setValue(v), dispose: () => ed.dispose() };
   }
   const ta = document.createElement('textarea'); ta.className = 'pg-fallback'; ta.value = code; host.appendChild(ta);
-  return { getValue: () => ta.value, dispose: () => {} };
+  return { getValue: () => ta.value, setValue: v => { ta.value = v; }, dispose: () => {} };
 }
 
 /* ---------- sql.js ---------- */
@@ -175,6 +175,8 @@ function renderChapter(courseId, chapterId) {
     <div id="quizZone"></div>
     <nav class="chap-nav" id="chapNav"></nav>`;
 
+  // Coloration syntaxique des blocs de code
+  highlightCode(root);
   // Playground
   if (ch.playground && ch.playground.code) renderPlayground(ch.playground);
   // Quiz
@@ -220,19 +222,29 @@ function setupSpy(heads) {
 }
 
 function renderPlayground(pg) {
-  const labels = { csharp: 'Exécuter (C#)', java: 'Exécuter (Java)', sql: 'Exécuter (SQL)', javascript: 'Exécuter (JS)' };
+  const labels = { csharp: 'Exécuter (C#)', java: 'Exécuter (Java)', sql: 'Exécuter (SQL)', javascript: 'Exécuter (JS)', html: 'Aperçu' };
   const zone = $('#pgZone');
   zone.innerHTML = `<div class="playground">
     <div class="pg-head">
       <span class="pg-lang">${esc(pg.language)}</span>
-      <span class="pg-title">Essaie toi-même — modifie le code et lance-le</span>
-      <button class="btn btn-accent pg-run" id="pgRun">▶ ${labels[pg.language] || 'Exécuter'}</button>
+      <span class="pg-title">🛠️ Bidouille le code et lance-le</span>
+      <span class="pg-btns">
+        <button class="btn btn-ghost" id="pgReset" title="Restaurer le code d'origine">↺ Réinitialiser</button>
+        <button class="btn btn-accent" id="pgRun">▶ ${labels[pg.language] || 'Exécuter'}</button>
+      </span>
     </div>
     <div class="pg-host" id="pgHost"></div>
     <div class="pg-out" id="pgOut" style="display:none"></div>
   </div>`;
-  mountEditor($('#pgHost'), pg.code, pg.language).then(ed => { currentEditor = ed; });
+  mountEditor($('#pgHost'), pg.code, pg.language).then(ed => {
+    currentEditor = ed;
+    if (pg.language === 'html') runPlayground(pg); // aperçu immédiat pour le HTML/CSS
+  });
   $('#pgRun').addEventListener('click', () => runPlayground(pg));
+  $('#pgReset').addEventListener('click', () => {
+    if (currentEditor) currentEditor.setValue(pg.code);
+    if (pg.language === 'html') runPlayground(pg); else $('#pgOut').style.display = 'none';
+  });
 }
 
 async function runPlayground(pg) {
@@ -254,6 +266,8 @@ async function runPlayground(pg) {
       const stripped = code.replace(/\bpublic\s+(class|interface|enum)\b/g, '$1');
       const r = await runWandboxRaw(stripped, 'openjdk-jdk-21+35');
       showWb(out, r);
+    } else if (pg.language === 'html') {
+      showPreview(out, code);
     }
   } catch (e) { showText(out, '⛔ ' + e.message, true); }
   btn.disabled = false; btn.innerHTML = old;
@@ -273,6 +287,11 @@ function showWb(out, r) {
   let txt = r.output || '(aucune sortie)';
   if (r.runError) txt += '\n⚠️ ' + r.runError;
   showText(out, txt, false);
+}
+function showPreview(out, code) {
+  out.className = 'pg-out';
+  out.innerHTML = `<div class="pg-out-head">Aperçu en direct</div><iframe class="pg-preview" sandbox="allow-same-origin"></iframe>`;
+  out.querySelector('iframe').srcdoc = code;
 }
 function showSql(out, res) {
   out.className = 'pg-out';
@@ -393,5 +412,20 @@ loadMonaco();
 loadSql();
 if (typeof marked !== 'undefined' && marked.use) marked.use({ gfm: true, breaks: false });
 route();
+
+/* ---------- Coloration syntaxique ---------- */
+function highlightCode(scope) {
+  if (typeof hljs === 'undefined') return;
+  const alias = { ts: 'typescript', js: 'javascript', cs: 'csharp', 'c#': 'csharp', sh: 'bash', shell: 'bash', console: 'bash', html: 'xml', xhtml: 'xml', yml: 'yaml', docker: 'dockerfile' };
+  scope.querySelectorAll('.md pre code').forEach(block => {
+    const m = (block.className || '').match(/language-([\w#+-]+)/i);
+    const lang = m ? m[1].toLowerCase() : null;
+    const real = lang ? (alias[lang] || lang) : null;
+    try {
+      if (real && hljs.getLanguage(real)) { block.className = 'language-' + real; hljs.highlightElement(block); }
+      else if (!lang) { hljs.highlightElement(block); }
+    } catch (e) {}
+  });
+}
 
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
