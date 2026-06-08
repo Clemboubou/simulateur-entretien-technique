@@ -801,9 +801,10 @@ function buildReport() {
       'Le grand soir du 100 % arrivera. Persévère, camarade !',
       'Même Jean-Luc a dû réviser ses classiques. À toi de jouer !'
     ];
-    const n = Math.floor(Math.random() * 5) + 1;
+    const WIN = ['win-1.webp', 'win-2.png', 'win-3.png', 'win-4.webp', 'win-5.png'];
+    const file = WIN[Math.floor(Math.random() * WIN.length)];
     const msg = msgs[Math.floor(Math.random() * msgs.length)];
-    celeb.innerHTML = `<img class="celeb-img" src="img/win-${n}.jpg" alt=""
+    celeb.innerHTML = `<img class="celeb-img" src="img/${file}" alt=""
       onload="this.closest('.celebration').classList.add('show')"
       onerror="this.closest('.celebration').classList.remove('show')">
       <div class="celeb-msg">🎉 ${msg}</div>`;

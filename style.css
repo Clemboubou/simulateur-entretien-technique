@@ -330,7 +330,7 @@ pre.code code.hljs { background: transparent; color: var(--code-text); padding: 
 
 /* Logo en image */
 .topnav .brand .logo { overflow: hidden; }
-.topnav .brand .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.topnav .brand .logo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 
 /* Image de félicitations (fin d'examen) */
 .celebration { display: none; flex-direction: column; align-items: center; gap: 10px; margin: 8px 0 18px; }
