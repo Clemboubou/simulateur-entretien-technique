@@ -1,17 +1,7 @@
 /* ============================================================
    Page Cours — documentation interactive
    ============================================================ */
-
-/* Filtre le warning cosmétique du loader Monaco */
-(function () {
-  ['warn', 'error'].forEach(function (lvl) {
-    const o = console[lvl];
-    console[lvl] = function () {
-      if (arguments.length && typeof arguments[0] === 'string' && arguments[0].indexOf('Duplicate definition of module') !== -1) return;
-      return o.apply(console, arguments);
-    };
-  });
-})();
+(function () { // ==== SPA : portée isolée (cohabite avec app.js) ====
 
 const $ = s => document.querySelector(s);
 const COURSES = window.COURSES || {};
@@ -19,16 +9,6 @@ const ORDER = ['fundamentals', 'csharp', 'aspnet', 'ef', 'java', 'spring', 'angu
 const courseIds = ORDER.filter(id => COURSES[id]).concat(Object.keys(COURSES).filter(id => ORDER.indexOf(id) === -1));
 
 let currentEditor = null;
-
-/* ---------- Thème ---------- */
-function setTheme(t) {
-  document.documentElement.setAttribute('data-theme', t);
-  try { localStorage.setItem('theme', t); } catch (e) {}
-  if (window.monaco) monaco.editor.setTheme(t === 'dark' ? 'vs-dark' : 'vs');
-}
-$('#themeToggle').addEventListener('click', () => {
-  setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-});
 
 /* ---------- Monaco ---------- */
 let monacoReady = null;
@@ -429,3 +409,5 @@ function highlightCode(scope) {
 }
 
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+})(); // ==== fin portée cours.js ====

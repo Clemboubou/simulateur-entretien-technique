@@ -1,6 +1,7 @@
 /* ============================================================
    Simulateur d'entretien technique — logique applicative
    ============================================================ */
+(function () { // ==== SPA : portée isolée (cohabite avec cours.js) ====
 
 /* Filtre le warning cosmétique et inoffensif du loader AMD de Monaco
    ("Duplicate definition of module 'vs/editor/editor.main'"). Sans impact. */
@@ -897,15 +898,6 @@ document.addEventListener('DOMContentLoaded', () => {
   loadMonaco(); // préchargement de l'IDE
   loadSql();    // préchargement du moteur SQLite (WASM)
 
-  // Thème clair / sombre (partagé avec la page Cours via localStorage)
-  const themeBtn = document.getElementById('themeToggle');
-  if (themeBtn) themeBtn.addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try { localStorage.setItem('theme', next); } catch (e) {}
-    if (window.monaco) monaco.editor.setTheme(next === 'dark' ? 'vs-dark' : 'vs');
-  });
-
   $('#startBtn').addEventListener('click', startTest);
   $('#selAll').addEventListener('click', () => document.querySelectorAll('#cats input').forEach(c => { c.checked = true; c.closest('.cat-chip').classList.add('sel'); }));
   $('#selNone').addEventListener('click', () => document.querySelectorAll('#cats input').forEach(c => { c.checked = false; c.closest('.cat-chip').classList.remove('sel'); }));
@@ -917,3 +909,4 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#printBtn').addEventListener('click', () => window.print());
   $('#restartBtn').addEventListener('click', () => location.reload());
 });
+})(); // ==== fin portée app.js ====
