@@ -51,6 +51,20 @@ function show(screenId) {
 function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+/* Coloration syntaxique (mêmes couleurs que la page Cours) */
+function catLang(cat) {
+  return { 'C#': 'csharp', 'ASP.NET Core': 'csharp', 'Entity Framework': 'csharp', 'Java': 'java', 'Spring Boot': 'java', 'JavaScript': 'javascript', 'Angular': 'typescript', 'CSS': 'css', 'SQL': 'sql', 'Git': 'bash', 'Docker': 'dockerfile' }[cat] || null;
+}
+function codeBlock(code, lang) {
+  const cls = lang ? ' class="language-' + lang + '"' : '';
+  return '<pre class="code"><code' + cls + '>' + esc(code) + '</code></pre>';
+}
+function highlightAll(scope) {
+  if (typeof hljs === 'undefined') return;
+  (scope || document).querySelectorAll('pre.code code[class]').forEach(b => {
+    try { const m = (b.className || '').match(/language-([\w#+-]+)/); if (m && hljs.getLanguage(m[1])) hljs.highlightElement(b); } catch (e) {}
+  });
+}
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -234,10 +248,11 @@ function renderQuestion() {
   } else {
     renderCode(card, q, a);
   }
+  highlightAll(card);
 }
 
 function renderMcq(card, q, a) {
-  const codeBlock = q.code ? `<pre class="code">${esc(q.code)}</pre>` : '';
+  const codeBlock = q.code ? `${codeBlock(q.code, catLang(q.category))}` : '';
   const opts = a.optsOrder.map((origIdx, pos) => {
     const letter = String.fromCharCode(65 + pos);
     const selCls = a.selectedIndex === origIdx ? ' sel' : '';
@@ -309,8 +324,9 @@ function renderCode(card, q, a) {
   // Bouton solution
   $('#solBtn').addEventListener('click', () => {
     const zone = $('#resultsZone');
-    zone.insertAdjacentHTML('beforeend', `<div class="ide"><div class="ide-head"><span style="margin-left:2px">✓ Solution proposée</span></div><pre class="code">${esc(q.solution)}</pre></div>
+    zone.insertAdjacentHTML('beforeend', `<div class="ide"><div class="ide-head"><span style="margin-left:2px">✓ Solution proposée</span></div>${codeBlock(q.solution, q.language)}</div>
       <div class="detail-body" style="display:block"><div class="expl">${esc(q.explanation)}</div></div>`);
+    highlightAll(zone);
   });
 
   if (isJs) {
@@ -768,6 +784,31 @@ function buildReport() {
   if (globalPct >= 0.6) { v.className = 'verdict ok'; v.textContent = '✅ Test réussi — au-dessus du seuil de 60 %'; }
   else { v.className = 'verdict ko'; v.textContent = '❌ En dessous du seuil de 60 % — continue à t\'entraîner !'; }
 
+  // Petit clin d'œil de fin d'examen : image aléatoire + message rigolo
+  const celeb = $('#celebration');
+  if (celeb) {
+    const msgs = globalPct >= 0.6 ? [
+      '✊ Insoumis face aux bugs, et vainqueur !',
+      '« Qu\'ils s\'en aillent tous »… sauf toi, t\'as géré !',
+      'Place au peuple… des développeurs ! 🔥',
+      'La planification écologique ET celle des tests : validées ! 🌍',
+      'On lâche rien, surtout pas la non-régression !',
+      'Allez, candidate chez efluid, c\'est validé !'
+    ] : [
+      'On ne lâche rien ! La révolution (du code) est en marche.',
+      'Un petit revers, mais l\'Insoumis se relève toujours. Recommence !',
+      '« Résistance ! » — relis le cours et reviens plus fort.',
+      'Le grand soir du 100 % arrivera. Persévère, camarade !',
+      'Même Jean-Luc a dû réviser ses classiques. À toi de jouer !'
+    ];
+    const n = Math.floor(Math.random() * 5) + 1;
+    const msg = msgs[Math.floor(Math.random() * msgs.length)];
+    celeb.innerHTML = `<img class="celeb-img" src="img/win-${n}.jpg" alt=""
+      onload="this.closest('.celebration').classList.add('show')"
+      onerror="this.closest('.celebration').classList.remove('show')">
+      <div class="celeb-msg">🎉 ${msg}</div>`;
+  }
+
   // Agrégation par catégorie / sous-catégorie
   const cats = {};
   state.list.forEach(q => {
@@ -814,7 +855,7 @@ function buildReport() {
       const goodTxt = q.options[q.correctIndex];
       const right = a.selectedIndex === q.correctIndex;
       body = `
-        ${q.code ? `<pre class="code">${esc(q.code)}</pre>` : ''}
+        ${q.code ? `${codeBlock(q.code, catLang(q.category))}` : ''}
         <div class="ans ${right ? 'good' : 'bad'}">Ta réponse : ${esc(yourTxt)}</div>
         ${right ? '' : `<div class="ans good">Bonne réponse : ${esc(goodTxt)}</div>`}
         <div class="expl">${esc(q.explanation)}</div>`;
@@ -828,7 +869,7 @@ function buildReport() {
       else got = '(non évalué)';
       body = `
         <div class="ans">${esc(got)}</div>
-        <div class="ide"><div class="ide-head"><span style="margin-left:2px">Solution</span></div><pre class="code">${esc(q.solution)}</pre></div>
+        <div class="ide"><div class="ide-head"><span style="margin-left:2px">Solution</span></div>${codeBlock(q.solution, q.language)}</div>
         <div class="expl">${esc(q.explanation)}</div>`;
     }
 
@@ -846,6 +887,7 @@ function buildReport() {
   $('#detailReport').querySelectorAll('.detail-head').forEach(h => {
     h.addEventListener('click', () => h.closest('.detail-item').classList.toggle('open'));
   });
+  highlightAll($('#detailReport'));
 }
 
 /* ---------- Branchements ---------- */

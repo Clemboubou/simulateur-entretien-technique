@@ -1,0 +1,34 @@
+============================================================
+  AJOUTER LES IMAGES DE FÉLICITATIONS (Mélenchon)
+============================================================
+
+Le code est déjà prêt : il affichera une image au hasard à la fin
+de l'examen + utilisera une image comme logo du site. Il te reste
+juste à DÉPOSER les fichiers ici, avec EXACTEMENT ces noms :
+
+Dans ce dossier  ...\simulateur-entretien\img\  :
+
+  win-1.jpg
+  win-2.jpg
+  win-3.jpg
+  win-4.jpg
+  win-5.jpg      <-- les 5 photos (une sera tirée au hasard à la fin de l'examen)
+
+  logo.png       <-- l'image du LOGO (idéalement la photo ronde/détourée),
+                     affichée en haut à gauche sur les deux pages
+
+COMMENT FAIRE
+-------------
+1. Enregistre chacune des 5 images sur ton PC.
+2. Glisse-les dans ce dossier "img".
+3. Renomme-les exactement : win-1.jpg, win-2.jpg, ... win-5.jpg
+   (peu importe le format réel : garde l'extension .jpg dans le nom,
+    le navigateur affichera quand même l'image).
+4. Mets une copie de la photo ronde en "logo.png".
+
+Tant que les fichiers ne sont pas là, rien ne casse :
+- le logo affiche la lettre « e »,
+- aucune image de félicitations n'apparaît.
+
+Une fois les fichiers déposés, dis-le moi et je les publie en ligne
+(ou fais : git add img ; git commit -m "images" ; git push).

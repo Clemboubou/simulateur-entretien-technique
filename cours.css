@@ -51,7 +51,8 @@ a:hover { text-decoration: underline; }
   background: var(--bg-elevated); border-bottom: 1px solid var(--border);
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-.brand .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color:#fff; display: grid; place-items: center; font-weight: 800; }
+.brand .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color:#fff; display: grid; place-items: center; font-weight: 800; overflow: hidden; }
+.brand .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .tabs { display: flex; gap: 4px; background: var(--surface); padding: 4px; border-radius: 10px; }
 .tab { padding: 6px 16px; border-radius: 7px; font-weight: 600; font-size: 14px; color: var(--text-muted); text-decoration: none; transition: .15s; }
 .tab:hover { color: var(--text); text-decoration: none; }

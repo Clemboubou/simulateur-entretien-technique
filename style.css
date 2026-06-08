@@ -276,3 +276,65 @@ textarea.code-fallback {
 [data-theme="dark"] .verdict.ko { background: #2d1413; color: #f85149; border-color: #5c2320; }
 [data-theme="dark"] .detail-body .expl { background: #241a04; color: var(--texte); }
 [data-theme="dark"] .seg { background: #30363d; }
+
+/* ============================================================
+   Navbar unifiée + coloration syntaxique (identiques à la page Cours)
+   ============================================================ */
+:root {
+  --bg:#ffffff; --bg-elevated:#f9fafb; --surface:#f3f4f6;
+  --border:#e5e7eb; --border-strong:#d0d7de;
+  --text:#1f2328; --text-muted:#59636e;
+  --accent:#3451b2; --accent-hover:#2a40a0;
+  --shadow2:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
+  --code-bg:#f6f8fa; --code-text:#1f2328; --code-border:#e5e7eb;
+  --hl-comment:#6e7781; --hl-keyword:#cf222e; --hl-string:#0a3069; --hl-number:#0550ae;
+  --hl-func:#8250df; --hl-type:#953800; --hl-attr:#0550ae; --hl-tag:#116329; --hl-meta:#0550ae;
+}
+:root[data-theme="dark"] {
+  --bg:#0d1117; --bg-elevated:#161b22; --surface:#1c2128;
+  --border:#30363d; --border-strong:#3d444d;
+  --text:#e6edf3; --text-muted:#9198a1;
+  --accent:#4493f8; --accent-hover:#6cb0ff;
+  --shadow2:0 1px 2px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.35);
+  --code-bg:#161b22; --code-text:#c9d1d9; --code-border:#30363d;
+  --hl-comment:#8b949e; --hl-keyword:#ff7b72; --hl-string:#a5d6ff; --hl-number:#79c0ff;
+  --hl-func:#d2a8ff; --hl-type:#ffa657; --hl-attr:#79c0ff; --hl-tag:#7ee787; --hl-meta:#79c0ff;
+}
+.topnav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 16px; height: 56px; padding: 0 18px; background: var(--bg-elevated); border-bottom: 1px solid var(--border); }
+.topnav .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); }
+.topnav .brand .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 18px; }
+.topnav .tabs { display: flex; gap: 4px; background: var(--surface); padding: 4px; border-radius: 10px; }
+.topnav .tab { padding: 6px 16px; border-radius: 7px; font-weight: 600; font-size: 14px; color: var(--text-muted); text-decoration: none; transition: .15s; }
+.topnav .tab:hover { color: var(--text); }
+.topnav .tab.active { background: var(--bg); color: var(--accent); box-shadow: var(--shadow2); }
+.topnav .spacer { flex: 1; }
+.topnav .theme-toggle { width: 38px; height: 38px; flex: none; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; display: grid; place-items: center; }
+.topnav .theme-toggle:hover { border-color: var(--border-strong); }
+.topnav .theme-toggle svg { width: 18px; height: 18px; }
+@media (max-width: 620px) { .topnav .brand span:last-child { display: none; } .topnav .tab { padding: 6px 12px; } }
+
+/* Blocs de code thématisés + coloration (mêmes couleurs que Cours) */
+pre.code { background: var(--code-bg); color: var(--code-text); border: 1px solid var(--code-border); }
+pre.code code { background: none; padding: 0; color: var(--code-text); font-family: inherit; }
+pre.code code.hljs { background: transparent; color: var(--code-text); padding: 0; }
+.hljs-comment, .hljs-quote { color: var(--hl-comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-doctag, .hljs-section, .hljs-name { color: var(--hl-keyword); }
+.hljs-string, .hljs-regexp, .hljs-addition, .hljs-meta .hljs-string { color: var(--hl-string); }
+.hljs-number, .hljs-variable, .hljs-template-variable, .hljs-bullet, .hljs-link, .hljs-symbol { color: var(--hl-number); }
+.hljs-title, .hljs-title.function_ { color: var(--hl-func); }
+.hljs-type, .hljs-built_in, .hljs-class .hljs-title, .hljs-title.class_ { color: var(--hl-type); }
+.hljs-attr, .hljs-attribute, .hljs-selector-class, .hljs-selector-attr, .hljs-selector-pseudo, .hljs-property { color: var(--hl-attr); }
+.hljs-tag { color: var(--hl-tag); }
+.hljs-meta, .hljs-operator { color: var(--hl-meta); }
+.hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: 700; }
+
+/* Logo en image */
+.topnav .brand .logo { overflow: hidden; }
+.topnav .brand .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Image de félicitations (fin d'examen) */
+.celebration { display: none; flex-direction: column; align-items: center; gap: 10px; margin: 8px 0 18px; }
+.celebration.show { display: flex; animation: pop .4s ease; }
+@keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.celeb-img { width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 4px solid var(--jaune); box-shadow: var(--ombre); }
+.celeb-msg { font-weight: 800; font-size: 18px; text-align: center; color: var(--texte); max-width: 460px; }
