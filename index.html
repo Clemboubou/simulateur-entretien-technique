@@ -13,10 +13,43 @@
     } catch (e) {}
   })();
 </script>
+<style>
+  /* Overlay de démarrage (inline : indépendant du CSS externe, masque le FOUC) */
+  #boot { position: fixed; inset: 0; z-index: 99999; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px; background: #ffffff; transition: opacity .35s ease; }
+  :root[data-theme="dark"] #boot { background: #0d1117; }
+  #boot.hidden { opacity: 0; pointer-events: none; }
+  #boot .boot-logo { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; object-position: center top; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  #boot .boot-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(128,128,128,.25); border-top-color: #3451b2; animation: bootspin .8s linear infinite; opacity: 0; }
+  :root[data-theme="dark"] #boot .boot-spin { border-top-color: #4493f8; }
+  #boot .boot-txt { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #8a8f98; font-size: 13px; opacity: 0; }
+  #boot.slow .boot-spin, #boot.slow .boot-txt { opacity: 1; transition: opacity .3s; }
+  @keyframes bootspin { to { transform: rotate(360deg); } }
+</style>
+<script>
+  (function () {
+    // Spinner seulement si le chargement dépasse 400 ms (sinon flash imperceptible sur F5 / cache chaud)
+    setTimeout(function () { var b = document.getElementById('boot'); if (b && !b.classList.contains('hidden')) b.classList.add('slow'); }, 400);
+    function hideBoot() {
+      var b = document.getElementById('boot'); if (!b) return;
+      b.classList.add('hidden');
+      setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 400);
+    }
+    window.addEventListener('DOMContentLoaded', function () { setTimeout(hideBoot, 60); });
+    window.addEventListener('load', hideBoot);
+    setTimeout(hideBoot, 9000); // filet de sécurité
+  })();
+</script>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="cours.css">
 </head>
 <body>
+
+<div id="boot">
+  <img class="boot-logo" src="img/logo.png" alt="" onerror="this.style.display='none'">
+  <div class="boot-spin"></div>
+  <div class="boot-txt">Chargement…</div>
+</div>
 
 <header class="topnav">
   <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
@@ -136,40 +169,22 @@
     </aside>
     <div class="backdrop" id="backdrop"></div>
     <main class="content">
-      <div class="content-inner" id="content"></div>
+      <div class="content-inner" id="content"><p style="padding:48px 8px;color:var(--text-muted)">Chargement des cours…</p></div>
     </main>
     <aside class="toc" id="toc"></aside>
   </div>
 </div>
 
-<!-- ================== LIBRAIRIES (chargées une fois) ================== -->
-<script src="marked.min.js"></script>
-<script src="highlight.min.js"></script>
-<script src="hljs-dockerfile.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
-<script src="sql-wasm.js"></script>
-<script src="sql-wasm-binary.js"></script>
-<!-- Données -->
-<script src="questions.js"></script>
-<script src="questions-extra.js"></script>
-<script src="courses/course-fundamentals.js"></script>
-<script src="courses/course-csharp.js"></script>
-<script src="courses/course-aspnet.js"></script>
-<script src="courses/course-ef.js"></script>
-<script src="courses/course-java.js"></script>
-<script src="courses/course-spring.js"></script>
-<script src="courses/course-angular.js"></script>
-<script src="courses/course-js.js"></script>
-<script src="courses/course-css.js"></script>
-<script src="courses/course-sql.js"></script>
-<script src="courses/course-git.js"></script>
-<script src="courses/course-docker.js"></script>
-<script src="courses/course-agile.js"></script>
-<script src="courses/course-testing.js"></script>
-<!-- Logique des deux vues (portées isolées) -->
-<script src="app.js"></script>
-<script src="cours.js"></script>
-<!-- Shell SPA (navbar, thème, bascule de vue) -->
-<script src="spa.js"></script>
+<!-- ================== NOYAU (defer : non bloquant) ==================
+     Lazy (chargés à la demande, pas au démarrage) :
+       - SQLite (sql-wasm*.js, 853 Ko) -> au 1er exercice SQL
+       - Bundle Cours (marked + 14 cours + cours.js, ~430 Ko) -> à l'ouverture de l'onglet Cours -->
+<script defer src="highlight.min.js"></script>
+<script defer src="hljs-dockerfile.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script defer src="questions.js"></script>
+<script defer src="questions-extra.js"></script>
+<script defer src="app.js"></script>
+<script defer src="spa.js"></script>
 </body>
 </html>

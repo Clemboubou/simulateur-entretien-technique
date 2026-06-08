@@ -100,16 +100,17 @@ const LANG_MAP = { csharp: 'csharp', sql: 'sql', javascript: 'javascript', types
 let sqlReady = null;
 function loadSql() {
   if (sqlReady) return sqlReady;
-  if (typeof initSqlJs === 'undefined') { sqlReady = Promise.resolve(null); return sqlReady; }
-  // Le binaire wasm est embarqué en base64 (sql-wasm-binary.js) -> aucune requête réseau,
-  // fonctionne même en double-clic (file://) et hors-ligne.
-  let config = {};
-  if (typeof window !== 'undefined' && window.SQL_WASM_BASE64) {
-    try { config.wasmBinary = Uint8Array.from(atob(window.SQL_WASM_BASE64), c => c.charCodeAt(0)); }
-    catch (e) { /* fallback ci-dessous */ }
-  }
-  if (!config.wasmBinary) config.locateFile = f => f; // cherche sql-wasm.wasm à côté de la page
-  sqlReady = initSqlJs(config).catch(() => null);
+  sqlReady = (async () => {
+    // Lazy : on télécharge sql.js + le binaire (853 Ko) seulement maintenant (1er usage SQL)
+    if (window.ensureSqlAssets) { try { await window.ensureSqlAssets(); } catch (e) { return null; } }
+    if (typeof initSqlJs === 'undefined') return null;
+    let config = {};
+    if (window.SQL_WASM_BASE64) {
+      try { config.wasmBinary = Uint8Array.from(atob(window.SQL_WASM_BASE64), c => c.charCodeAt(0)); } catch (e) {}
+    }
+    if (!config.wasmBinary) config.locateFile = f => f;
+    try { return await initSqlJs(config); } catch (e) { return null; }
+  })();
   return sqlReady;
 }
 // Exécute du SQL sur une base fraîche (setup puis requête). Renvoie {ok, result|error}.
@@ -895,8 +896,7 @@ function buildReport() {
 /* ---------- Branchements ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   buildHome();
-  loadMonaco(); // préchargement de l'IDE
-  loadSql();    // préchargement du moteur SQLite (WASM)
+  // Monaco et SQLite sont chargés à la demande (lazy), pas au démarrage.
 
   $('#startBtn').addEventListener('click', startTest);
   $('#selAll').addEventListener('click', () => document.querySelectorAll('#cats input').forEach(c => { c.checked = true; c.closest('.cat-chip').classList.add('sel'); }));

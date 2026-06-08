@@ -43,11 +43,14 @@ async function mountEditor(host, code, lang) {
 let sqlReady = null;
 function loadSql() {
   if (sqlReady) return sqlReady;
-  if (typeof initSqlJs === 'undefined') { sqlReady = Promise.resolve(null); return sqlReady; }
-  let cfg = {};
-  if (window.SQL_WASM_BASE64) { try { cfg.wasmBinary = Uint8Array.from(atob(window.SQL_WASM_BASE64), c => c.charCodeAt(0)); } catch (e) {} }
-  if (!cfg.wasmBinary) cfg.locateFile = f => f;
-  sqlReady = initSqlJs(cfg).catch(() => null);
+  sqlReady = (async () => {
+    if (window.ensureSqlAssets) { try { await window.ensureSqlAssets(); } catch (e) { return null; } }
+    if (typeof initSqlJs === 'undefined') return null;
+    let cfg = {};
+    if (window.SQL_WASM_BASE64) { try { cfg.wasmBinary = Uint8Array.from(atob(window.SQL_WASM_BASE64), c => c.charCodeAt(0)); } catch (e) {} }
+    if (!cfg.wasmBinary) cfg.locateFile = f => f;
+    try { return await initSqlJs(cfg); } catch (e) { return null; }
+  })();
   return sqlReady;
 }
 async function runSqlRaw(code) {
@@ -388,8 +391,7 @@ window.addEventListener('hashchange', route);
 
 /* ---------- Init ---------- */
 buildTree();
-loadMonaco();
-loadSql();
+// Monaco et SQLite : chargés à la demande (lazy) quand on ouvre un playground.
 if (typeof marked !== 'undefined' && marked.use) marked.use({ gfm: true, breaks: false });
 route();
 
